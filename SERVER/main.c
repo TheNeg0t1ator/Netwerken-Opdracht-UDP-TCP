@@ -36,6 +36,16 @@
 	int OSCleanup( void ) {}
 #endif
 
+struct Packet {
+int data;
+int size;
+
+};
+
+
+
+
+
 int initialization();
 void execution( int internet_socket );
 void cleanup( int internet_socket );
@@ -47,7 +57,8 @@ int main( int argc, char * argv[] )
 	//////////////////
 
 
-    int IntToSend = CreateRandomInt();
+
+    //int IntToSend = CreateRandomInt();
 
 	OSInit();
 
@@ -131,7 +142,9 @@ void execution( int internet_socket )
 	int number_of_bytes_received = 0;
 	char buffer[1000];
 	struct sockaddr_storage client_internet_address;
-	socklen_t client_internet_address_length = sizeof client_internet_address;
+	socklen_t client_internet_address_length = sizeof client_internet_address;\
+
+	while(strcmp(buffer, "GO")){
 	number_of_bytes_received = recvfrom( internet_socket, buffer, ( sizeof buffer ) - 1, 0, (struct sockaddr *) &client_internet_address, &client_internet_address_length );
 	if( number_of_bytes_received == -1 )
 	{
@@ -142,7 +155,7 @@ void execution( int internet_socket )
 		buffer[number_of_bytes_received] = '\0';
 		printf( "Received : %s\n", buffer );
 	}
-
+	}
 	//Step 2.2
 	int number_of_bytes_send = 0;
 	number_of_bytes_send = sendto( internet_socket, "Hello UDP world!", 16, 0, (struct sockaddr *) &client_internet_address, client_internet_address_length );
