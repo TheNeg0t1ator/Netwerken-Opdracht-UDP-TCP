@@ -42,23 +42,26 @@ int size;
 
 };
 
-
-
-
+#include <stdint.h>
+#include <time.h>
+#include <stdlib.h>
 
 int initialization();
 void execution( int internet_socket );
 void cleanup( int internet_socket );
+
+int highestInt[2];
+
 
 int main( int argc, char * argv[] )
 {
 	//////////////////
 	//Initialization//
 	//////////////////
+	srand(time(NULL));
 
 
 
-    //int IntToSend = CreateRandomInt();
 
 	OSInit();
 
@@ -138,6 +141,7 @@ int initialization()
 
 void execution( int internet_socket )
 {
+	
 	//Step 2.1
 	int number_of_bytes_received = 0;
 	char buffer[1000];
@@ -157,12 +161,74 @@ void execution( int internet_socket )
 	}
 	}
 	//Step 2.2
+	int IntToSend = 0;
+	char CharToSend[16];
+
+
+	for (int k = 0; k < 2; k++)
+	{
+	for (int i = 0; i < 8; i++)
+	{
+	IntToSend = (rand()%100);
+	
+	itoa(IntToSend,CharToSend,10);
+	htons(*CharToSend);
 	int number_of_bytes_send = 0;
-	number_of_bytes_send = sendto( internet_socket, "Hello UDP world!", 16, 0, (struct sockaddr *) &client_internet_address, client_internet_address_length );
+	number_of_bytes_send = sendto( internet_socket, CharToSend, strlen(CharToSend), 0, (struct sockaddr *) &client_internet_address, client_internet_address_length );
 	if( number_of_bytes_send == -1 )
 	{
 		perror( "sendto" );
 	}
+}
+
+
+
+	for (int j = 0; j < 3; j++)
+	{
+	DWORD timeout = 1 * 1000;
+  	setsockopt(internet_socket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout, sizeof timeout);
+	number_of_bytes_received = recvfrom( internet_socket, buffer, ( sizeof buffer ) - 1, 0, (struct sockaddr *) &client_internet_address, &client_internet_address_length );
+	if( number_of_bytes_received == -1 )
+	{
+		perror( "recvfrom" );
+		printf("didn't receive highest number\n");
+	}else 
+	{
+		buffer[number_of_bytes_received] = '\0';
+		highestInt[k] = atoi(buffer);
+		printf( "Received : %d\n", highestInt[k] );
+		if (highestInt[k] != 0)
+		{
+		printf("succesfully received highestInt\n");	
+		}else{
+		printf("received something, not a number\n");	
+		}
+		
+		break;
+	}
+	}
+
+
+	}
+	for (int i = 0; i < 2; i++)
+	{
+		printf("getal %d = ", i+1);
+		printf("%d \n",highestInt[i]);
+	
+	}
+	htons(*CharToSend);
+	int number_of_bytes_send = 0;
+	number_of_bytes_send = sendto( internet_socket, "OK", 2, 0, (struct sockaddr *) &client_internet_address, client_internet_address_length );
+	if( number_of_bytes_send == -1 )
+	{
+		perror( "sendto" );
+	}else{
+
+	printf("sent: OK");
+	}
+	
+
+
 }
 
 void cleanup( int internet_socket )
